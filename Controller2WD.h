@@ -22,8 +22,8 @@ public:
     Controller2WD(MotorWithEncoder& leftMotor, MotorWithEncoder& rightMotor, uint16_t encoderResolution)
         : leftMotor(leftMotor), rightMotor(rightMotor), encoderResolution(encoderResolution) {
     
-        leftMotor.registerObserver(*this);
-        rightMotor.registerObserver(*this);
+        leftMotor.subscribe(*this);
+        rightMotor.subscribe(*this);
     }
 
     //starts moving in FORWARD/BACKWARD direction
