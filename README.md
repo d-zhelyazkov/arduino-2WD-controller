@@ -4,8 +4,14 @@
 Features:
 - wheel encoders for precise wheel movements
 - API for movement(forward/backward) and turning(left/right), evaluated with wheel rotations
+- communication over the default USB serial link
+
+Architecture:
+- reactive design, based on serial events (USB) and low-level interrupts (wheel encoders)
+- state machine for the communication
 
 Depends on:
 - motor library
 - interrupt_system library
-* libraries from other repository of mine, named "Arduino"
+- stream library
+    * these libraries are in other repository of mine, called "Arduino"
