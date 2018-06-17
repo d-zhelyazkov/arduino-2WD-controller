@@ -11,8 +11,11 @@
 #include "State.h"
 
 
+#define SERIAL_BOUD 9600
 #define ENCODER_RESOLUTION 36
 #define MOTOR_POWER 255
+
+#define PROGRAM_STARTED "PROGRAM_STARTED"
 
 
 MotorWithEncoder leftMotor(ArduinoMotorShield::MOTOR_A, A3);
@@ -26,14 +29,10 @@ void setup() {
     leftMotor.setPower(MOTOR_POWER);
     rightMotor.setPower(MOTOR_POWER);
 
-    Serial.begin(9600);
-    Serial.println("PROGRAM_BEGIN");
-    stateContext.reset();
+    Serial.begin(SERIAL_BOUD);
+    Serial.println(PROGRAM_STARTED);
 
-    /*controller2WD.move(FORWARD, 1);
-    controller2WD.move(BACKWARD, 1);
-    controller2WD.turn(LEFT, 1);
-    controller2WD.turn(RIGHT, 1);*/
+    stateContext.reset();
     
 }
 

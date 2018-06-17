@@ -16,7 +16,7 @@ public:
         State(context),
         wheelRotations(wheelRotations) {}
 
-    void init();
+    virtual void init();
 
     void update(Observable& observable);
 

@@ -1,9 +1,12 @@
 #include "State.h"
 #include "StandByState.h"
 #include "Common.h"
+#include "ExStream.h"
 
 
-#define DELAY_UNSUCCESSFUL 1000
+#define INVALID_SERIAL_DATA "INVALID"
+
+#define CLEAR_WAIT 100
 
 
 void StateContext::serialEvent() {
@@ -14,10 +17,13 @@ void StateContext::serialEvent() {
 
     bool success = (*state).serialEvent();
     if (!success) {
-        Serial.println("SERIAL_DATA_INVALID");
-
-        delay(DELAY_UNSUCCESSFUL);
+        //clear, because the data (probably all of it) is not relevant to the current state
+        //delay, because serial is slow and may not delete all data
+        delay(CLEAR_WAIT);
+        ExStream::serial().clear();
+        Serial.println(INVALID_SERIAL_DATA);
     }
+
 }
 
 void StateContext::reset() {

@@ -8,12 +8,24 @@
 #define TURN_LEFT_CMD "TURN_LEFT"
 #define TURN_RIGHT_CMD "TURN_RIGHT"
 
+#define MOVE_FORWARD_SIGNAL "MOVING_FORWARD"
+#define MOVE_BACKWARD_SIGNAL "MOVING_BACKWARD"
+#define TURN_LEFT_SIGNAL "TURNING_LEFT"
+#define TURN_RIGHT_SIGNAL "TURNING_RIGHT"
+
+#define ROTATIONS_SIGNAL "AWAITING_ROTATIONS"
+
 
 class MoveForwardState : public ActionState {
 public:
     MoveForwardState(StateContext& context, float wheelRotations) :
         ActionState(context, wheelRotations) {}
 protected:
+    void init() {
+        ActionState::init();
+        Serial.println(MOVE_FORWARD_SIGNAL);
+    }
+
     bool doAction() {
         return context.getController().move(FORWARD, wheelRotations);
     }
@@ -23,6 +35,11 @@ public:
     MoveBackwardState(StateContext& context, float wheelRotations) :
         ActionState(context, wheelRotations) {}
 protected:
+    void init() {
+        ActionState::init();
+        Serial.println(MOVE_BACKWARD_SIGNAL);
+    }
+
     bool doAction() {
         return context.getController().move(BACKWARD, wheelRotations);
     }
@@ -32,6 +49,11 @@ public:
     TurnLeftState(StateContext& context, float wheelRotations) :
         ActionState(context, wheelRotations) {}
 protected:
+    void init() {
+        ActionState::init();
+        Serial.println(TURN_LEFT_SIGNAL);
+    }
+
     bool doAction() {
         return context.getController().turn(LEFT, wheelRotations);
     }
@@ -41,6 +63,11 @@ public:
     TurnRightState(StateContext& context, float wheelRotations) :
         ActionState(context, wheelRotations) {}
 protected:
+    void init() {
+        ActionState::init();
+        Serial.println(TURN_RIGHT_SIGNAL);
+    }
+
     bool doAction() {
         return context.getController().turn(RIGHT, wheelRotations);
     }
@@ -54,7 +81,6 @@ void ActionState::init() {
     //Serial.println("Subscribed.");
 
     doAction();
-    Serial.println("SUCCESSFUL_START");
 }
 
 void ActionState::update(Observable& observable) {
@@ -74,7 +100,7 @@ bool ActionPreState::canHandle(String & command)
 
 void ActionPreState::init()
 {
-    Serial.println("AWAITING_ROTATIONS");
+    Serial.println(ROTATIONS_SIGNAL);
 }
 
 bool ActionPreState::serialEvent()
