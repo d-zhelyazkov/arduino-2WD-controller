@@ -9,12 +9,11 @@ void StandByState::init() {
 bool StandByState::serialEvent() {
 
     String action = Serial.readString();
-    if (action.equals("MOVE_FORWARD")) {
+    if (ActionPreState::canHandle(action)) {
         context.setState(
             new ActionPreState(context, action));
     }
     else {
-        Serial.println("UNKNOWN_ACTION");
         return false;
     }
 

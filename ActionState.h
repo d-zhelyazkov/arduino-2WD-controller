@@ -1,7 +1,6 @@
 #pragma once
 
 #include "State.h"
-
 #include "Observer.h"
 
 
@@ -25,24 +24,13 @@ protected:
     virtual bool doAction() = 0;
 };
 
-class MoveForwardState : public ActionState {
-
-public:
-    MoveForwardState(StateContext& context, float wheelRotations) :
-        ActionState(context, wheelRotations) {}
-
-    void init();
-
-protected:
-    bool doAction();
-
-};
-
 class ActionPreState : public State {
 
     String command;
 
 public:
+    static bool canHandle(String& command);
+
     ActionPreState(StateContext& context, String& command) :
         State(context), command(command) {}
 
