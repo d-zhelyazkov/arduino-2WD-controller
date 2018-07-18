@@ -4,14 +4,14 @@
 #include "ExStream.h"
 
 
-#define INVALID_SERIAL_DATA "INVALID"
+#define INVALID "INVALID"
 
 #define CLEAR_WAIT 100
 
 
 void StateContext::serialEvent() {
     if (!state) {
-        Serial.println("State context not set!");
+        ExSerial.println("State context not set!");
         return;
     }
 
@@ -20,8 +20,8 @@ void StateContext::serialEvent() {
         //clear, because the data (probably all of it) is not relevant to the current state
         //delay, because serial is slow and may not delete all data
         delay(CLEAR_WAIT);
-        ExStream::serial().clear();
-        Serial.println(INVALID_SERIAL_DATA);
+        ExSerial.clear();
+        ExSerial.println(INVALID);
     }
 
 }
@@ -30,10 +30,18 @@ void StateContext::reset() {
     setState(new StandByState(*this));
 }
 
-void StateContext::setState(State* state) {
+bool StateContext::setState(State* statePtr) {
     StateContext& dis = *this;
 
+    State& state = *statePtr;
+    bool result = state.init();
+    if (result == false) {
+        return false;
+    }
+
     deleteObject(dis.state);
-    dis.state = state;
-    (*state).init();
+    dis.state = statePtr;
+    ExSerial.println(state.getName());
+
+    return true;
 }

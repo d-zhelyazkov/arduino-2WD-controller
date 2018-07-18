@@ -16,7 +16,9 @@ public:
 
     virtual bool serialEvent() { return false; }
 
-    virtual void init() {}
+    virtual bool init() { return true; }
+
+    virtual String getName() = 0;
 };
 
 class StateContext {
@@ -32,7 +34,7 @@ public:
 
     void reset();
 
-    void setState(State* state);
+    bool setState(State* state);
 
     Controller2WD& getController() {
         return controller2WD;

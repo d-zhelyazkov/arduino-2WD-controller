@@ -8,33 +8,22 @@ class ActionState :
     public State,
     private Observer {
 
-protected:
-    float wheelRotations;
+    Motion motion;
+    float value;
+    Metric metric;
+    MotionDirection direction;
 
 public:
-    ActionState(StateContext& context, float wheelRotations) :
-        State(context),
-        wheelRotations(wheelRotations) {}
+    ActionState(StateContext& context,
+        Motion motion, float value, Metric metric, MotionDirection direction) :
 
-    virtual void init();
+        State(context),
+        motion(motion), value(value), metric(metric), direction(direction){}
+
+
+    virtual bool init();
 
     void update(Observable& observable);
 
-protected:
-    virtual bool doAction() = 0;
-};
-
-class ActionPreState : public State {
-
-    String command;
-
-public:
-    static bool canHandle(String& command);
-
-    ActionPreState(StateContext& context, String& command) :
-        State(context), command(command) {}
-
-    void init();
-
-    bool serialEvent();
+    String getName();
 };

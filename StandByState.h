@@ -9,8 +9,14 @@ public:
     StandByState(StateContext& context) :
         State(context) {}
 
-    void init();
-
     bool serialEvent();
+
+    String getName() {
+        return "STANDING_BY";
+    }
+
+private:
+
+    bool handleMotionRequest(Motion motion);
 
 };
