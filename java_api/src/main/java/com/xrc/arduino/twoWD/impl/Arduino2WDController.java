@@ -57,7 +57,7 @@ public class Arduino2WDController
             String line = inputReader.readLine();
             switch (line) {
             case PROGRAM_STARTED_NOTIFICATION:
-                state = MotionState.STANDING_BY;
+                state = MotionState.STOPPED;
                 listeners.forEach(ControllerListener::onStart);
                 break;
             case INVALID_REQUEST:

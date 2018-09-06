@@ -42,7 +42,7 @@ public:
     }
 
     //starts moving in straight direction
-    //will asynchronously stop; observers are notified when stopped
+    //will asynchronously stop - observers will be notified for state change
     //value - how much to move measured in the given metric; if negative the direction is switched
     //metric - UNITS/WHEEL_ROTATIONS
     //direction - FORWARD/BACKWARD
@@ -50,12 +50,14 @@ public:
     bool move(float value, Metric metric = UNITS, MotionDirection direction = FORWARD);
 
     //starts turning
-    //will asynchronously stop; observers are notified when stopped
+    //will asynchronously stop - observers will be notified for state change
     //value - how much to turn measured in the given metric; if negative the direction is switched
     //metric - UNITS/WHEEL_ROTATIONS/DEGREES
     //direction - LEFT/RIGHT
     //returns true if successfully started turning
     bool turn(float value, Metric metric = DEGREES, MotionDirection direction = LEFT);
+
+    bool start(Motion motion, float value, Metric metric, MotionDirection direction);
 
     bool isMoving();
 
@@ -72,7 +74,12 @@ public:
 
 private:
 
-    //called when the motors change state; will notify observers when the two motors stop
+    void setState(ControllerState state) {
+        (*this).state = state;
+        notifyObservers();
+    }
+
+    //called when the motors change state;
     void update(Observable& updatedMotor);
 
     float resolveWheelRotations(float value, Metric metric);

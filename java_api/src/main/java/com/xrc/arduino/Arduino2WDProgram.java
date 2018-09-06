@@ -24,6 +24,7 @@ public class Arduino2WDProgram {
                     @Override
                     public void onStart() {
                         System.out.println("program started");
+                        twoWDController.turn(DUMMY_COMMAND);
                     }
 
                     @Override

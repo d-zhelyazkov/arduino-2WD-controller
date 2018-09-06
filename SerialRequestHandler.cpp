@@ -1,25 +1,31 @@
-#include "StandByState.h"
-#include "ActionState.h"
-#include "ExStream.h" 
-#include "ControllerConstants.h"
+#include "SerialRequestHandler.h"
 
-#define ACTION_WAIT 200
+#include "ExStream.h"
 
-bool StandByState::serialEvent() {
-    delay(ACTION_WAIT);
 
-    String action = ExSerial.readWord();
-    Motion motion = motionFromStr(action);
-    //ExSerial.printf("Action: %s;Motion: %d\n", action.c_str(), motion);
+#define REQUEST_WAIT 200
+
+#define INVALID_REQUEST "INVALID"
+
+
+void SerialRequestHandler::handle()
+{
+    delay(REQUEST_WAIT);
+
+    String request = ExSerial.readWord();
+    Motion motion = motionFromStr(request);
+    //ExSerial.printf("Action: %s;Motion: %d\n", request.c_str(), motion);
     if (motion != Motion::NULL_MOTION) {
-        return handleMotionRequest(motion);
+        bool success = handleMotionRequest(motion);
+        if (!success)
+            ExSerial.println(INVALID_REQUEST);
     }
     else {
-        return false;
+        ExSerial.println(INVALID_REQUEST);
     }
 }
 
-bool StandByState::handleMotionRequest(Motion motion)
+bool SerialRequestHandler::handleMotionRequest(Motion motion)
 {
     float value = ExSerial.parseFloat();
     Metric metric = Metric::NULL_METRIC;
@@ -58,6 +64,5 @@ bool StandByState::handleMotionRequest(Motion motion)
         }
     }
 
-    //ExSerial.printf("ActionState set - Motion: %d; val: %s; metric: %d; dir: %d\n", motion, String(value).c_str(), metric, direction);
-    return context.setState(new ActionState(context, motion, value, metric, direction));
+    return controller.start(motion, value, metric, direction);
 }

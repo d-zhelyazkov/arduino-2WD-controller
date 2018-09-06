@@ -35,12 +35,12 @@ bool Controller2WD::move(float value, Metric metric, MotionDirection direction)
     case FORWARD:
         leftMotor.move(ROT_ANTI_CLOCK, encoderTicks);
         rightMotor.move(ROT_CLOCK, encoderTicks);
-        state = ControllerState::MOOVING_FORWARD;
+        setState(ControllerState::MOOVING_FORWARD);
         break;
     case BACKWARD:
         leftMotor.move(ROT_CLOCK, encoderTicks);
         rightMotor.move(ROT_ANTI_CLOCK, encoderTicks);
-        state = ControllerState::MOOVING_BACKWARD;
+        setState(ControllerState::MOOVING_BACKWARD);
         break;
     default:
         return false;
@@ -86,18 +86,31 @@ bool Controller2WD::turn(float value, Metric metric, MotionDirection direction)
     case LEFT:
         leftMotor.move(ROT_CLOCK, encoderTicks);
         rightMotor.move(ROT_CLOCK, encoderTicks);
-        state = ControllerState::TURNING_LEFT;
+        setState(ControllerState::TURNING_LEFT);
         break;
     case RIGHT:
         leftMotor.move(ROT_ANTI_CLOCK, encoderTicks);
         rightMotor.move(ROT_ANTI_CLOCK, encoderTicks);
-        state = ControllerState::TURNING_RIGHT;
+        setState(ControllerState::TURNING_RIGHT);
         break;
     default:
         return false;
     }
 
     return true;
+}
+
+bool Controller2WD::start(Motion motion, float value, Metric metric, MotionDirection direction)
+{
+    switch (motion)
+    {
+    case MOVE:
+        return move(value, metric, direction);
+    case TURN:
+        return turn(value, metric, direction);
+    default:
+        return false;
+    }
 }
 
 bool Controller2WD::isMoving()
@@ -112,8 +125,7 @@ void Controller2WD::update(Observable& updatedMotor)
     if (isMoving())
         return;
 
-    state = ControllerState::STILL;
-    notifyObservers();
+    setState(ControllerState::STILL);
 }
 
 float Controller2WD::resolveWheelRotations(float value, Metric metric)

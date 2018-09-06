@@ -1,15 +1,16 @@
 /*
- Name:		Arduino2WDController3.ino
+ Name:		arduino-2WD-controller.ino
  Created:	6/9/2018 3:59:03 PM
  Author:	dzhelyazkov
 */
 
+#include "ExStream.h"
 #include "MotorWithEncoder.h"
 #include "ArduinoMotorShield.h"
 
 #include "Controller2WD.h"
-#include "ExStream.h"
-#include "State.h"
+#include "ControllerStateNotifier.h"
+#include "SerialRequestHandler.h"
 
 
 #define SERIAL_BOUD 9600
@@ -20,10 +21,12 @@
 
 #define PROGRAM_STARTED "PROGRAM_STARTED"
 
+
 MotorWithEncoder leftMotor(ArduinoMotorShield::MOTOR_A, A3);
 MotorWithEncoder rightMotor(ArduinoMotorShield::MOTOR_B, A2);
 Controller2WD controller2WD(leftMotor, rightMotor, ENCODER_RESOLUTION, AXLE_TRACK, WHEEL_DIAMETER);
-StateContext stateContext(controller2WD);
+ControllerStateNotifier stateNotifier(controller2WD);
+SerialRequestHandler requestHandler(controller2WD);
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -37,8 +40,6 @@ void setup() {
     ExSerial.println("Wheel perimeter: " + String(controller2WD.getWheelPerimeter()));
     ExSerial.println("Axle track: " + String(controller2WD.getAxleTrack()));*/
 
-    stateContext.reset();
-
     ExSerial.println(PROGRAM_STARTED);
 }
 
@@ -48,5 +49,5 @@ void loop() {
 
 void serialEvent() {
     //ExSerial.println("serial event");
-    stateContext.serialEvent();
+    requestHandler.handle();
 }

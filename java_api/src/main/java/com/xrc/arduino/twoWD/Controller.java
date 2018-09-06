@@ -13,7 +13,7 @@ public interface Controller {
     void subscribe(ControllerListener listener);
 
     enum MotionState {
-        STANDING_BY,
+        STOPPED,
         MOVING_FORWARD,
         MOVING_BACKWARD,
         TURNING_LEFT,

@@ -9,7 +9,6 @@ Features:
 
 Architecture:
 - reactive design, based on serial events (USB) and low-level interrupts (wheel encoders)
-- state machine for the communication
 
 Depends on:
 - motor library
