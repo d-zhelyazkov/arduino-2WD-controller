@@ -4,6 +4,9 @@ import com.xrc.arduino.serial.SerialConnection;
 import com.xrc.arduino.serial.SerialListener;
 import com.xrc.arduino.twoWD.Controller;
 import com.xrc.arduino.twoWD.ControllerListener;
+import com.xrc.arduino.twoWD.MoveCommand;
+import com.xrc.arduino.twoWD.TurnCommand;
+import com.xrc.command.CommandLine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,29 +17,15 @@ import java.util.Collection;
 public class Arduino2WDController
         implements Controller, SerialListener {
 
-    private static final String MOVE_FORWARD_CMD = "MOVE_FORWARD";
-
-    private static final String MOVE_BACKWARD_CMD = "MOVE_BACKWARD";
-
-    private static final String TURN_LEFT_CMD = "TURN_LEFT";
-
-    private static final String TURN_RIGHT_CMD = "TURN_RIGHT";
-
     private static final String PROGRAM_STARTED_NOTIFICATION = "PROGRAM_STARTED";
 
-    private static final String READY_NOTIFICATION = "READY";
-
-    private static final String INVALID_CMD = "INVALID";
-
-    private static final String ROTATIONS_REQUEST = "AWAITING_ROTATIONS";
+    private static final String INVALID_REQUEST = "INVALID";
 
     private final Collection<ControllerListener> listeners = new ArrayList<>();
 
     private final SerialConnection serialConnection;
 
     private MotionState state;
-
-    private float requestedWheelRotations;
 
     public Arduino2WDController(SerialConnection serialConnection) {
         this.serialConnection = serialConnection;
@@ -49,41 +38,13 @@ public class Arduino2WDController
     }
 
     @Override
-    public void move(MoveDirection direction, float wheelRotations) {
-        requestedWheelRotations = wheelRotations;
-
-        try {
-            Writer outputWriter = serialConnection.getOutputWriter();
-            switch (direction) {
-            case FORWARD:
-                outputWriter.write(MOVE_FORWARD_CMD);
-                break;
-            case BACKWARD:
-                outputWriter.write(MOVE_BACKWARD_CMD);
-                break;
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void move(MoveCommand command) {
+        executeCommand(command);
     }
 
     @Override
-    public void turn(TurnDirection direction, float wheelRotations) {
-        requestedWheelRotations = wheelRotations;
-
-        try {
-            Writer outputWriter = serialConnection.getOutputWriter();
-            switch (direction) {
-            case LEFT:
-                outputWriter.write(TURN_LEFT_CMD);
-                break;
-            case RIGHT:
-                outputWriter.write(TURN_RIGHT_CMD);
-                break;
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void turn(TurnCommand command) {
+        executeCommand(command);
     }
 
     @Override
@@ -96,23 +57,19 @@ public class Arduino2WDController
             String line = inputReader.readLine();
             switch (line) {
             case PROGRAM_STARTED_NOTIFICATION:
-                state = MotionState.STANDBY;
-                listeners.forEach(ControllerListener::onInit);
+                state = MotionState.STANDING_BY;
+                listeners.forEach(ControllerListener::onStart);
                 break;
-            case READY_NOTIFICATION:
-                state = MotionState.STANDBY;
-                listeners.forEach(ControllerListener::onReady);
-                break;
-            case INVALID_CMD:
+            case INVALID_REQUEST:
                 listeners.forEach(ControllerListener::onInvalidCommand);
                 break;
-            case ROTATIONS_REQUEST:
-                Writer outputWriter = serialConnection.getOutputWriter();
-                outputWriter.write(Float.toString(requestedWheelRotations));
-                break;
             default:
-                state = MotionState.valueOf(line);
-                listeners.forEach(ControllerListener::onMove);
+                try {
+                    state = MotionState.valueOf(line);
+                    listeners.forEach(ControllerListener::onStateChange);
+                } catch (IllegalArgumentException ignored) {
+                    listeners.forEach(listener -> listener.onMessage(line));
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -127,6 +84,20 @@ public class Arduino2WDController
     public MotionState getState() {
         return state;
     }
+
+    private void executeCommand(CommandLine command) {
+        try {
+            String commandLine = command.getLine();
+
+            Writer outputWriter = serialConnection.getOutputWriter();
+            outputWriter.write(commandLine);
+
+            System.out.println("Executing : " + commandLine);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
 
 

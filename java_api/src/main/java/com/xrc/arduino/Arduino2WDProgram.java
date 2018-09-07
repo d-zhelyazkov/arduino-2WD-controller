@@ -5,8 +5,13 @@ import com.xrc.arduino.serial.SerialConnection;
 import com.xrc.arduino.twoWD.Controller;
 import com.xrc.arduino.twoWD.ControllerFactory;
 import com.xrc.arduino.twoWD.ControllerListener;
+import com.xrc.arduino.twoWD.TurnCommand;
 
 public class Arduino2WDProgram {
+
+    private static final TurnCommand DUMMY_COMMAND = new TurnCommand.Builder()
+            .value(90)
+            .build();
 
     public static void main(String[] args) {
 
@@ -17,30 +22,24 @@ public class Arduino2WDProgram {
                 Controller twoWDController = ControllerFactory.getInstance().getController(serialConnection);
                 twoWDController.subscribe(new ControllerListener() {
                     @Override
-                    public void onInit() {
+                    public void onStart() {
                         System.out.println("program started");
                     }
 
                     @Override
-                    public void onReady() {
-                        System.out.println("ready");
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        twoWDController.move(Controller.MoveDirection.FORWARD, 0.5f);
-                    }
-
-                    @Override
-                    public void onMove() {
+                    public void onStateChange() {
                         System.out.println(twoWDController.getState());
-                        twoWDController.turn(Controller.TurnDirection.RIGHT, 0.5f);
+                        twoWDController.turn(DUMMY_COMMAND);
                     }
 
                     @Override
                     public void onInvalidCommand() {
-                        System.out.println("invalid command");
+                        System.out.println("invalid request");
+                    }
+
+                    @Override
+                    public void onMessage(String message) {
+                        System.out.println("New message: " + message);
                     }
                 });
 

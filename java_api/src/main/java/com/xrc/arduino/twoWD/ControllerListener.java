@@ -1,11 +1,11 @@
 package com.xrc.arduino.twoWD;
 
 public interface ControllerListener {
-    void onInit();
+    void onStart();
 
-    void onReady();
-
-    void onMove();
+    void onStateChange();
 
     void onInvalidCommand();
+
+    void onMessage(String message);
 }
