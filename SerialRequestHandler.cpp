@@ -1,6 +1,7 @@
 #include "SerialRequestHandler.h"
 
 #include "ExStream.h"
+#include "Debug.h"
 
 
 #define REQUEST_WAIT 200
@@ -14,7 +15,8 @@ void SerialRequestHandler::handle()
 
     String request = ExSerial.readWord();
     Motion motion = motionFromStr(request);
-    //ExSerial.printf("Action: %s;Motion: %d\n", request.c_str(), motion);
+    DEBUG(ExSerial.printf("Request: %s; Motion: %d\n", request.c_str(), motionToStr(motion).c_str()));
+
     if (motion != Motion::NULL_MOTION) {
         bool success = handleMotionRequest(motion);
         if (!success)
@@ -42,7 +44,7 @@ bool SerialRequestHandler::handleMotionRequest(Motion motion)
                 direction = parsedDirection;
             }
             else {
-                //ExSerial.printf("Invalid metric/direction '%s'\n", var1.c_str());
+                DEBUG(ExSerial.printf("Invalid metric/direction '%s'\n", var1.c_str()));
                 return false;
             }
         }
@@ -51,14 +53,14 @@ bool SerialRequestHandler::handleMotionRequest(Motion motion)
         if (var2.length() > 0) {
             if (direction != MotionDirection::NULL_DIR) {
                 //direction is var1
-                //ExSerial.printf("Invalid argument '%s'\n", var2.c_str());
+                DEBUG(ExSerial.printf("Invalid argument '%s'\n", var2.c_str()));
                 return false;
             }
 
-            //ExSerial.printf("Direction read - '%s'\n", var2.c_str());
+            DEBUG(ExSerial.printf("Direction read - '%s'\n", var2.c_str()));
             direction = motionDirFromStr(var2);
             if (direction == MotionDirection::NULL_DIR) {
-                //ExSerial.printf("Invalid dir '%s'\n", var2.c_str());
+                DEBUG(ExSerial.printf("Invalid dir '%s'\n", var2.c_str()));
                 return false;
             }
         }

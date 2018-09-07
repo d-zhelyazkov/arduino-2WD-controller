@@ -1,10 +1,15 @@
-#include <math.h>
 #include "Controller2WD.h"
+
+#include <math.h>
+
 #include "ExStream.h"
+#include "Debug.h"
+
 
 bool Controller2WD::move(float value, Metric metric, MotionDirection direction)
 {
     if (isMoving()) {
+        DEBUG(ExSerial.println("Can't move since the controller is already mooving."));
         return false;
     }
 
@@ -16,6 +21,7 @@ bool Controller2WD::move(float value, Metric metric, MotionDirection direction)
         metric = UNITS;
         break;
     default:
+        DEBUG(ExSerial.println("Can't resolve move metric " + metricToStr(metric)));
         return false;
     }
 
@@ -28,21 +34,25 @@ bool Controller2WD::move(float value, Metric metric, MotionDirection direction)
 
     uint16_t encoderTicks = resolveEncoderTicks(wheelRotations);
     if (encoderTicks == 0) {
+        DEBUG(ExSerial.println("Can't move because encoder ticks evaluated to 0."));
         return false;
     }
 
     switch (direction) {
     case FORWARD:
+        DEBUG(ExSerial.printf("Will move forward for %d ticks.\n", encoderTicks);)
         leftMotor.move(ROT_ANTI_CLOCK, encoderTicks);
         rightMotor.move(ROT_CLOCK, encoderTicks);
         setState(ControllerState::MOOVING_FORWARD);
         break;
     case BACKWARD:
+        DEBUG(ExSerial.printf("Will move backward for %d ticks.\n", encoderTicks);)
         leftMotor.move(ROT_CLOCK, encoderTicks);
         rightMotor.move(ROT_ANTI_CLOCK, encoderTicks);
         setState(ControllerState::MOOVING_BACKWARD);
         break;
     default:
+        DEBUG(ExSerial.println("Can't resolve move direction " + motionDirToStr(direction)));
         return false;
     }
 
@@ -52,6 +62,7 @@ bool Controller2WD::move(float value, Metric metric, MotionDirection direction)
 bool Controller2WD::turn(float value, Metric metric, MotionDirection direction)
 {
     if (isMoving()) {
+        DEBUG(ExSerial.println("Can't turn since the controller is already mooving."));
         return false;
     }
 
@@ -64,6 +75,7 @@ bool Controller2WD::turn(float value, Metric metric, MotionDirection direction)
         metric = DEGREES;
         break;
     default:
+        DEBUG(ExSerial.println("Can't resolve turn metric " + metricToStr(metric)));
         return false;
     }
 
@@ -76,24 +88,25 @@ bool Controller2WD::turn(float value, Metric metric, MotionDirection direction)
 
     uint16_t encoderTicks = resolveEncoderTicks(wheelRotations);
     if (encoderTicks == 0) {
+        DEBUG(ExSerial.println("Can't turn because encoder ticks evaluated to 0."));
         return false;
     }
 
-    //Serial.print("Will turn rotations "); Serial.println(wheelRotations);
-    //Serial.print("Ticks: "); Serial.println(encoderTicks);
-
     switch (direction) {
     case LEFT:
+        DEBUG(ExSerial.printf("Will turn left for %d ticks.\n", encoderTicks));
         leftMotor.move(ROT_CLOCK, encoderTicks);
         rightMotor.move(ROT_CLOCK, encoderTicks);
         setState(ControllerState::TURNING_LEFT);
         break;
     case RIGHT:
+        DEBUG(ExSerial.printf("Will turn right for %d ticks.\n", encoderTicks));
         leftMotor.move(ROT_ANTI_CLOCK, encoderTicks);
         rightMotor.move(ROT_ANTI_CLOCK, encoderTicks);
         setState(ControllerState::TURNING_RIGHT);
         break;
     default:
+        DEBUG(ExSerial.println("Can't resolve turn direction " + motionDirToStr(direction)));
         return false;
     }
 
@@ -109,6 +122,7 @@ bool Controller2WD::start(Motion motion, float value, Metric metric, MotionDirec
     case TURN:
         return turn(value, metric, direction);
     default:
+        DEBUG(ExSerial.println("Can't resolve motion " + motionToStr(motion)));
         return false;
     }
 }

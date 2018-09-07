@@ -13,6 +13,19 @@ Motion motionFromStr(String & motion)
     }
 }
 
+String motionToStr(Motion motion)
+{
+    switch (motion)
+    {
+    case MOVE:
+        return "MOVE";
+    case TURN:
+        return "TURN";
+    default:
+        return "UNDEFINED";
+    }
+}
+
 MotionDirection motionDirFromStr(String & direction)
 {
     if (direction.equalsIgnoreCase("FORWARD")
@@ -34,6 +47,23 @@ MotionDirection motionDirFromStr(String & direction)
     }
     else {
         return MotionDirection::NULL_DIR;
+    }
+}
+
+String motionDirToStr(MotionDirection direction)
+{
+    switch (direction)
+    {
+    case FORWARD:
+        return "FORWARD";
+    case BACKWARD:
+        return "BACKWARD";
+    case LEFT:
+        return "LEFT";
+    case RIGHT:
+        return "RIGHT";
+    default:
+        return "UNKNOWN";
     }
 }
 
@@ -74,6 +104,21 @@ Metric metricFromStr(String & metric)
     }
     else {
         return Metric::NULL_METRIC;
+    }
+}
+
+String metricToStr(Metric metric)
+{
+    switch (metric)
+    {
+    case WHEEL_ROTATIONS:
+        return "WHEEL_ROTATIONS";
+    case UNITS:
+        return "UNITS";
+    case DEGREES:
+        return "DEGREES";
+    default:
+        return "UNKNOWN";
     }
 }
 

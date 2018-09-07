@@ -5,6 +5,7 @@
 */
 
 #include "ExStream.h"
+#include "Debug.h"
 #include "MotorWithEncoder.h"
 #include "ArduinoMotorShield.h"
 
@@ -35,10 +36,12 @@ void setup() {
     leftMotor.setPower(MOTOR_POWER);
     rightMotor.setPower(MOTOR_POWER);
 
-    /*ExSerial.println("Controller2WD initialization...");
+    DEBUG(
+    ExSerial.println("Controller2WD initialization...");
     ExSerial.println("Wheel diameter: " + String(controller2WD.getWheelDiameter()));
     ExSerial.println("Wheel perimeter: " + String(controller2WD.getWheelPerimeter()));
-    ExSerial.println("Axle track: " + String(controller2WD.getAxleTrack()));*/
+    ExSerial.println("Axle track: " + String(controller2WD.getAxleTrack()));
+    )
 
     ExSerial.println(PROGRAM_STARTED);
 }
@@ -48,6 +51,5 @@ void loop() {
 }
 
 void serialEvent() {
-    //ExSerial.println("serial event");
     requestHandler.handle();
 }
