@@ -21,8 +21,6 @@ class Controller2WD :
     float steerRatio;
     float wheelPerimeter;
 
-    ControllerState state = ControllerState::STILL;
-
 public:
     
     //encoderResolution - encoder ticks per one full wheel rotation
@@ -61,7 +59,7 @@ public:
 
     bool isMoving();
 
-    ControllerState getState() { return state; }
+    ControllerState getState();
 
     //the diameter in units of one wheel
     float getWheelDiameter() { return wheelDiameter; }
@@ -73,11 +71,6 @@ public:
     float getAxleTrack() { return axleTrack; }
 
 private:
-
-    void setState(ControllerState state) {
-        (*this).state = state;
-        notifyObservers();
-    }
 
     //called when the motors change state;
     void update(Observable& updatedMotor);

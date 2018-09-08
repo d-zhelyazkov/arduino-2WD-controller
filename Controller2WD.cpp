@@ -43,13 +43,13 @@ bool Controller2WD::move(float value, Metric metric, MotionDirection direction)
         DEBUG(ExSerial.printf("Will move forward for %d ticks.\n", encoderTicks);)
         leftMotor.move(ROT_ANTI_CLOCK, encoderTicks);
         rightMotor.move(ROT_CLOCK, encoderTicks);
-        setState(ControllerState::MOOVING_FORWARD);
+        notifyObservers();
         break;
     case BACKWARD:
         DEBUG(ExSerial.printf("Will move backward for %d ticks.\n", encoderTicks);)
         leftMotor.move(ROT_CLOCK, encoderTicks);
         rightMotor.move(ROT_ANTI_CLOCK, encoderTicks);
-        setState(ControllerState::MOOVING_BACKWARD);
+        notifyObservers();
         break;
     default:
         DEBUG(ExSerial.println("Can't resolve move direction " + motionDirToStr(direction)));
@@ -97,13 +97,13 @@ bool Controller2WD::turn(float value, Metric metric, MotionDirection direction)
         DEBUG(ExSerial.printf("Will turn left for %d ticks.\n", encoderTicks));
         leftMotor.move(ROT_CLOCK, encoderTicks);
         rightMotor.move(ROT_CLOCK, encoderTicks);
-        setState(ControllerState::TURNING_LEFT);
+        notifyObservers();
         break;
     case RIGHT:
         DEBUG(ExSerial.printf("Will turn right for %d ticks.\n", encoderTicks));
         leftMotor.move(ROT_ANTI_CLOCK, encoderTicks);
         rightMotor.move(ROT_ANTI_CLOCK, encoderTicks);
-        setState(ControllerState::TURNING_RIGHT);
+        notifyObservers();
         break;
     default:
         DEBUG(ExSerial.println("Can't resolve turn direction " + motionDirToStr(direction)));
@@ -129,9 +129,52 @@ bool Controller2WD::start(Motion motion, float value, Metric metric, MotionDirec
 
 bool Controller2WD::isMoving()
 {
-    return (
-        (leftMotor.getState() != MotorState::STOPPED)
-        || (rightMotor.getState() != MotorState::STOPPED));
+    return (getState() != ControllerState::STILL);
+}
+
+ControllerState Controller2WD::getState()
+{
+    MotorState leftState = leftMotor.getState();
+    MotorState rightState = rightMotor.getState();
+
+    switch (leftState)
+    {
+    case MotorState::STOPPED:
+        switch (rightState)
+        {
+        case MotorState::STOPPED:
+            return ControllerState::STILL;
+        case MotorState::ROT_CLOCK:
+            return ControllerState::TURNING_LEFT;
+        case MotorState::ROT_ANTI_CLOCK:
+            return ControllerState::TURNING_RIGHT;
+        }
+    case MotorState::ROT_CLOCK:
+        switch (rightState)
+        {
+        case MotorState::STOPPED:
+        case MotorState::ROT_CLOCK:
+            return ControllerState::TURNING_LEFT;
+        case MotorState::ROT_ANTI_CLOCK:
+            return ControllerState::MOVING_BACKWARD;
+        }
+
+    case MotorState::ROT_ANTI_CLOCK:
+        switch (rightState)
+        {
+        case MotorState::STOPPED:
+        case MotorState::ROT_ANTI_CLOCK:
+            return ControllerState::TURNING_RIGHT;
+        case MotorState::ROT_CLOCK:
+            return ControllerState::MOVING_FORWARD;
+        }
+    }
+
+    DEBUG(
+    ExSerial.println("Failed to determine the controller state.");
+    ExSerial.printf("Left state: %d; right state: %d\n", leftState, rightState);
+    );
+    return ControllerState();
 }
 
 void Controller2WD::update(Observable& updatedMotor)
@@ -139,7 +182,7 @@ void Controller2WD::update(Observable& updatedMotor)
     if (isMoving())
         return;
 
-    setState(ControllerState::STILL);
+    notifyObservers();
 }
 
 float Controller2WD::resolveWheelRotations(float value, Metric metric)

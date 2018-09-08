@@ -128,10 +128,10 @@ String controllerStateToStr(ControllerState state)
     {
     case STILL:
         return "STOPPED";
-    case MOOVING_FORWARD:
-        return "MOOVING_FORWARD";
-    case MOOVING_BACKWARD:
-        return "MOOVING_BACKWARD";
+    case MOVING_FORWARD:
+        return "MOVING_FORWARD";
+    case MOVING_BACKWARD:
+        return "MOVING_BACKWARD";
     case TURNING_LEFT:
         return "TURNING_LEFT";
     case TURNING_RIGHT:

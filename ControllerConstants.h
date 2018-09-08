@@ -14,5 +14,5 @@ enum Metric { NULL_METRIC, WHEEL_ROTATIONS, UNITS, DEGREES};
 Metric metricFromStr(String& metric);
 String metricToStr(Metric metric);
 
-enum ControllerState { NULL_STATE, STILL, MOOVING_FORWARD, MOOVING_BACKWARD, TURNING_LEFT, TURNING_RIGHT};
+enum ControllerState { NULL_STATE, STILL, MOVING_FORWARD, MOVING_BACKWARD, TURNING_LEFT, TURNING_RIGHT};
 String controllerStateToStr(ControllerState state);
