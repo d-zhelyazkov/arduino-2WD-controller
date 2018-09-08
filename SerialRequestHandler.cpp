@@ -4,9 +4,9 @@
 #include "Debug.h"
 
 
-#define REQUEST_WAIT 200
-
 #define INVALID_REQUEST "INVALID"
+#define STATE_REQUEST "GET_STATE"
+#define REQUEST_WAIT 100
 
 
 void SerialRequestHandler::handle()
@@ -14,21 +14,24 @@ void SerialRequestHandler::handle()
     delay(REQUEST_WAIT);
 
     String request = ExSerial.readWord();
-    Motion motion = motionFromStr(request);
-    DEBUG(ExSerial.printf("Request: %s; Motion: %d\n", request.c_str(), motionToStr(motion).c_str()));
+    DEBUG(ExSerial.println("Request: " + request));
 
+    Motion motion = motionFromStr(request);
     if (motion != Motion::NULL_MOTION) {
-        bool success = handleMotionRequest(motion);
-        if (!success)
-            ExSerial.println(INVALID_REQUEST);
+        handleMotionRequest(motion);
+    }
+    else if (request.equalsIgnoreCase(STATE_REQUEST)) {
+        handleStateRequest();
     }
     else {
         ExSerial.println(INVALID_REQUEST);
     }
 }
 
-bool SerialRequestHandler::handleMotionRequest(Motion motion)
+void SerialRequestHandler::handleMotionRequest(Motion motion)
 {
+    bool validInput = true;
+
     float value = ExSerial.parseFloat();
     Metric metric = Metric::NULL_METRIC;
     MotionDirection direction = MotionDirection::NULL_DIR;
@@ -44,8 +47,8 @@ bool SerialRequestHandler::handleMotionRequest(Motion motion)
                 direction = parsedDirection;
             }
             else {
-                DEBUG(ExSerial.printf("Invalid metric/direction '%s'\n", var1.c_str()));
-                return false;
+                DEBUG(ExSerial.println("Invalid metric/direction: " + var1));
+                validInput = false;
             }
         }
 
@@ -53,18 +56,34 @@ bool SerialRequestHandler::handleMotionRequest(Motion motion)
         if (var2.length() > 0) {
             if (direction != MotionDirection::NULL_DIR) {
                 //direction is var1
-                DEBUG(ExSerial.printf("Invalid argument '%s'\n", var2.c_str()));
-                return false;
+                DEBUG(ExSerial.println("Invalid 3rd argument."));
+                validInput = false;
             }
+            else {
 
-            DEBUG(ExSerial.printf("Direction read - '%s'\n", var2.c_str()));
-            direction = motionDirFromStr(var2);
-            if (direction == MotionDirection::NULL_DIR) {
-                DEBUG(ExSerial.printf("Invalid dir '%s'\n", var2.c_str()));
-                return false;
+                DEBUG(ExSerial.println("Direction read: " + var2));
+                direction = motionDirFromStr(var2);
+                if (direction == MotionDirection::NULL_DIR) {
+                    DEBUG(ExSerial.println("Invalid direction: " + var2));
+                    validInput = false;
+                }
             }
         }
     }
+    if (!validInput) {
+        ExSerial.clear();                       //clears remaining unread data from the invalid request
+        ExSerial.println(INVALID_REQUEST);
+        return;
+    }
 
-    return controller.start(motion, value, metric, direction);
+    bool success = controller.start(motion, value, metric, direction);
+    if (!success) {
+        ExSerial.println(INVALID_REQUEST);
+    }
+}
+
+void SerialRequestHandler::handleStateRequest()
+{
+    ControllerState state = controller.getState();
+    ExSerial.println(controllerStateToStr(state));
 }

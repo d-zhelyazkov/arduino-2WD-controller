@@ -8,7 +8,7 @@ public interface Controller {
 
     void turn(TurnCommand turnCommand);
 
-    MotionState getState();
+    void requestState();
 
     void subscribe(ControllerListener listener);
 

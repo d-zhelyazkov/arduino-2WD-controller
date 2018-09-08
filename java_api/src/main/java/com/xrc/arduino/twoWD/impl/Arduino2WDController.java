@@ -21,11 +21,11 @@ public class Arduino2WDController
 
     private static final String INVALID_REQUEST = "INVALID";
 
+    private static final String STATE_REQUEST = "GET_STATE";
+
     private final Collection<ControllerListener> listeners = new ArrayList<>();
 
     private final SerialConnection serialConnection;
-
-    private MotionState state;
 
     public Arduino2WDController(SerialConnection serialConnection) {
         this.serialConnection = serialConnection;
@@ -57,18 +57,17 @@ public class Arduino2WDController
             String line = inputReader.readLine();
             switch (line) {
             case PROGRAM_STARTED_NOTIFICATION:
-                state = MotionState.STOPPED;
                 listeners.forEach(ControllerListener::onStart);
                 break;
             case INVALID_REQUEST:
-                listeners.forEach(ControllerListener::onInvalidCommand);
+                listeners.forEach(ControllerListener::onInvalidRequest);
                 break;
             default:
                 try {
-                    state = MotionState.valueOf(line);
-                    listeners.forEach(ControllerListener::onStateChange);
+                    MotionState state = MotionState.valueOf(line);
+                    listeners.forEach(controllerListener -> controllerListener.stateReceived(state));
                 } catch (IllegalArgumentException ignored) {
-                    listeners.forEach(listener -> listener.onMessage(line));
+                    listeners.forEach(listener -> listener.messageReceived(line));
                 }
             }
         } catch (Exception e) {
@@ -81,18 +80,19 @@ public class Arduino2WDController
     }
 
     @Override
-    public MotionState getState() {
-        return state;
+    public void requestState() {
+        sendRequest(STATE_REQUEST);
     }
 
     private void executeCommand(CommandLine command) {
+        String commandLine = command.getLine();
+        sendRequest(commandLine);
+    }
+
+    private void sendRequest(String request) {
         try {
-            String commandLine = command.getLine();
-
             Writer outputWriter = serialConnection.getOutputWriter();
-            outputWriter.write(commandLine);
-
-            System.out.println("Executing : " + commandLine);
+            outputWriter.write(request);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -41,6 +41,7 @@ void setup() {
     ExSerial.println("Wheel diameter: " + String(controller2WD.getWheelDiameter()));
     ExSerial.println("Wheel perimeter: " + String(controller2WD.getWheelPerimeter()));
     ExSerial.println("Axle track: " + String(controller2WD.getAxleTrack()));
+    ExSerial.printf("Serial timeout: %d\n", ExSerial.getTimeout());
     )
 
     ExSerial.println(PROGRAM_STARTED);

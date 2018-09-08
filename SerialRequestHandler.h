@@ -15,6 +15,7 @@ public:
 
 private:
 
-    bool handleMotionRequest(Motion motion);
+    void handleMotionRequest(Motion motion);
 
+    void handleStateRequest();
 };

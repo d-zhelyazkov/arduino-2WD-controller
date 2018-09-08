@@ -24,22 +24,22 @@ public class Arduino2WDProgram {
                     @Override
                     public void onStart() {
                         System.out.println("program started");
+                        twoWDController.requestState();
+                    }
+
+                    @Override
+                    public void stateReceived(Controller.MotionState state) {
+                        System.out.println("State received: " + state);
                         twoWDController.turn(DUMMY_COMMAND);
                     }
 
                     @Override
-                    public void onStateChange() {
-                        System.out.println(twoWDController.getState());
-                        twoWDController.turn(DUMMY_COMMAND);
-                    }
-
-                    @Override
-                    public void onInvalidCommand() {
+                    public void onInvalidRequest() {
                         System.out.println("invalid request");
                     }
 
                     @Override
-                    public void onMessage(String message) {
+                    public void messageReceived(String message) {
                         System.out.println("New message: " + message);
                     }
                 });

@@ -3,9 +3,9 @@ package com.xrc.arduino.twoWD;
 public interface ControllerListener {
     void onStart();
 
-    void onStateChange();
+    void stateReceived(Controller.MotionState state);
 
-    void onInvalidCommand();
+    void onInvalidRequest();
 
-    void onMessage(String message);
+    void messageReceived(String message);
 }
