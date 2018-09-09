@@ -193,10 +193,19 @@ float Controller2WD::resolveWheelRotations(float value, Metric metric)
     case DEGREES: {
         float degrees = normalizeDegrees(value);
         float robotRotations = degrees / 360;
-        return robotRotations * steerRatio;
+        float wheelRotations = robotRotations * steerRatio;
+        DEBUG(
+        String degreesStr(degrees);
+        ExSerial.printf("Degrees %s normalized to %s\n", String(value).c_str(), degreesStr.c_str());
+        ExSerial.printf("Degrees %s resolved to %s rotations\n", degreesStr.c_str(), String(wheelRotations).c_str());
+        );
+        return wheelRotations;
     }
-    case UNITS:
-        return value / wheelPerimeter;
+    case UNITS: {
+        float wheelRotations = value / wheelPerimeter;
+        DEBUG(ExSerial.printf("Units %s resolved to %s rotations\n", String(value).c_str(), String(wheelRotations).c_str()));
+        return wheelRotations;
+    }
     default:
         return 0.0f;
     }
