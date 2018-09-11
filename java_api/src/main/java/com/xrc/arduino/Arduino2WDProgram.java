@@ -5,11 +5,12 @@ import com.xrc.arduino.serial.SerialConnection;
 import com.xrc.arduino.twoWD.Controller;
 import com.xrc.arduino.twoWD.ControllerFactory;
 import com.xrc.arduino.twoWD.ControllerListener;
-import com.xrc.arduino.twoWD.TurnCommand;
+import com.xrc.arduino.twoWD.MotionCommand;
+import com.xrc.arduino.twoWD.impl.TurnCommand;
 
 public class Arduino2WDProgram {
 
-    private static final TurnCommand DUMMY_COMMAND = new TurnCommand.Builder()
+    private static final MotionCommand DUMMY_COMMAND = new TurnCommand.Builder()
             .value(90)
             .build();
 
@@ -30,7 +31,7 @@ public class Arduino2WDProgram {
                     @Override
                     public void stateReceived(Controller.MotionState state) {
                         System.out.println("State received: " + state);
-                        twoWDController.turn(DUMMY_COMMAND);
+                        twoWDController.sendMotionCommand(DUMMY_COMMAND);
                     }
 
                     @Override

@@ -4,9 +4,7 @@ import com.xrc.arduino.serial.SerialConnection;
 import com.xrc.arduino.serial.SerialListener;
 import com.xrc.arduino.twoWD.Controller;
 import com.xrc.arduino.twoWD.ControllerListener;
-import com.xrc.arduino.twoWD.MoveCommand;
-import com.xrc.arduino.twoWD.TurnCommand;
-import com.xrc.command.CommandLine;
+import com.xrc.arduino.twoWD.MotionCommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,13 +36,9 @@ public class Arduino2WDController
     }
 
     @Override
-    public void move(MoveCommand command) {
-        executeCommand(command);
-    }
-
-    @Override
-    public void turn(TurnCommand command) {
-        executeCommand(command);
+    public void sendMotionCommand(MotionCommand command) {
+        String commandLine = command.getLine();
+        sendRequest(commandLine);
     }
 
     @Override
@@ -82,11 +76,6 @@ public class Arduino2WDController
     @Override
     public void requestState() {
         sendRequest(STATE_REQUEST);
-    }
-
-    private void executeCommand(CommandLine command) {
-        String commandLine = command.getLine();
-        sendRequest(commandLine);
     }
 
     private void sendRequest(String request) {

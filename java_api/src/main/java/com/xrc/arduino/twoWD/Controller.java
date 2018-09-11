@@ -4,9 +4,7 @@ public interface Controller {
 
     void initialize() throws Exception;
 
-    void move(MoveCommand command);
-
-    void turn(TurnCommand turnCommand);
+    void sendMotionCommand(MotionCommand command);
 
     void requestState();
 
