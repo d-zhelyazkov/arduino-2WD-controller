@@ -3,9 +3,9 @@ package com.xrc.arduino;
 import com.xrc.arduino.serial.ConnectionFactory;
 import com.xrc.arduino.serial.SerialConnection;
 import com.xrc.arduino.twoWD.Controller;
-import com.xrc.arduino.twoWD.ControllerFactory;
 import com.xrc.arduino.twoWD.ControllerListener;
 import com.xrc.arduino.twoWD.MotionCommand;
+import com.xrc.arduino.twoWD.impl.Arduino2WDController;
 import com.xrc.arduino.twoWD.impl.TurnCommand;
 
 public class Arduino2WDProgram {
@@ -18,9 +18,10 @@ public class Arduino2WDProgram {
 
         Thread t = new Thread(() -> {
 
+            ConnectionFactory connectionFactory = ConnectionFactory.getInstance();
             try {
-                SerialConnection serialConnection = ConnectionFactory.getInstance().getConnection();
-                Controller twoWDController = ControllerFactory.getInstance().getController(serialConnection);
+                SerialConnection serialConnection = connectionFactory.getConnection();
+                Controller twoWDController = new Arduino2WDController(serialConnection);
                 twoWDController.subscribe(new ControllerListener() {
                     @Override
                     public void onStart() {
