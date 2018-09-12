@@ -1,14 +1,14 @@
 package com.xrc.arduino.twoWD;
 
-public interface Controller {
+import com.xrc.util.observer.Observable;
+
+public interface Controller extends Observable<ControllerListener> {
 
     void initialize() throws Exception;
 
     void sendMotionCommand(MotionCommand command);
 
     void requestState();
-
-    void subscribe(ControllerListener listener);
 
     enum MotionState {
         STOPPED,

@@ -1,11 +1,17 @@
 package com.xrc.arduino.twoWD;
 
-public interface ControllerListener {
-    void onStart();
+import com.xrc.util.observer.Observer;
 
-    void stateReceived(Controller.MotionState state);
+public interface ControllerListener extends Observer {
+    default void onStart() {
+    }
 
-    void onInvalidRequest();
+    default void stateReceived(Controller.MotionState state) {
+    }
 
-    void messageReceived(String message);
+    default void onInvalidRequest() {
+    }
+
+    default void messageReceived(String message) {
+    }
 }

@@ -5,14 +5,14 @@ import com.xrc.arduino.serial.SerialListener;
 import com.xrc.arduino.twoWD.Controller;
 import com.xrc.arduino.twoWD.ControllerListener;
 import com.xrc.arduino.twoWD.MotionCommand;
+import com.xrc.util.observer.AsyncObservableBase;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
 
 public class Arduino2WDController
+        extends AsyncObservableBase<ControllerListener>
         implements Controller, SerialListener {
 
     private static final String PROGRAM_STARTED_NOTIFICATION = "PROGRAM_STARTED";
@@ -20,8 +20,6 @@ public class Arduino2WDController
     private static final String INVALID_REQUEST = "INVALID";
 
     private static final String STATE_REQUEST = "GET_STATE";
-
-    private final Collection<ControllerListener> listeners = new ArrayList<>();
 
     private final SerialConnection serialConnection;
 
@@ -51,26 +49,22 @@ public class Arduino2WDController
             String line = inputReader.readLine();
             switch (line) {
             case PROGRAM_STARTED_NOTIFICATION:
-                listeners.forEach(ControllerListener::onStart);
+                super.notifyObservers(ControllerListener::onStart);
                 break;
             case INVALID_REQUEST:
-                listeners.forEach(ControllerListener::onInvalidRequest);
+                super.notifyObservers(ControllerListener::onInvalidRequest);
                 break;
             default:
                 try {
                     MotionState state = MotionState.valueOf(line);
-                    listeners.forEach(controllerListener -> controllerListener.stateReceived(state));
+                    super.notifyObservers(listener -> listener.stateReceived(state));
                 } catch (IllegalArgumentException ignored) {
-                    listeners.forEach(listener -> listener.messageReceived(line));
+                    super.notifyObservers(listener -> listener.messageReceived(line));
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void subscribe(ControllerListener listener) {
-        listeners.add(listener);
     }
 
     @Override
