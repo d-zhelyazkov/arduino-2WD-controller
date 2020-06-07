@@ -1,7 +1,5 @@
 package com.xrc.arduino.twoWD.task;
 
-import com.xrc.arduino.serial.ConnectionFactory;
-import com.xrc.arduino.serial.SerialConnection;
 import com.xrc.arduino.twoWD.Controller;
 import com.xrc.arduino.twoWD.ControllerListener;
 import com.xrc.arduino.twoWD.impl.Arduino2WDController;
@@ -20,18 +18,15 @@ public class ControllerInitTask {
 
     private final Logger logger = LogManager.getLogger();
 
-    private SerialConnection connection;
+    private final Arduino2WDController controller;
 
-    private Controller controller;
-
-    public ControllerInitTask() {
+    public ControllerInitTask(Arduino2WDController controller) {
+        this.controller = controller;
     }
 
     public void execute() throws Exception {
 
         try {
-            connection = ConnectionFactory.getInstance().getConnection();
-            controller = new Arduino2WDController(connection);
             controller.subscribe(new ControllerLogger());
 
             CountDownLatch startLatch = new CountDownLatch(1);
@@ -43,7 +38,7 @@ public class ControllerInitTask {
             };
             controller.subscribe(startListener);
 
-            connection.initialize();
+            controller.getConnection().initialize();
             controller.initialize();
 
             boolean success = startLatch.await(TIMEOUT.getSeconds(), TimeUnit.SECONDS);
@@ -60,10 +55,6 @@ public class ControllerInitTask {
             logger.error("Failed to initialize the controller.", e);
             throw e;
         }
-    }
-
-    public SerialConnection getConnection() {
-        return connection;
     }
 
     public Controller getController() {

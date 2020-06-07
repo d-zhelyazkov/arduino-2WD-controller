@@ -72,6 +72,10 @@ public class Arduino2WDController
         sendRequest(STATE_REQUEST);
     }
 
+    public SerialConnection getConnection() {
+        return serialConnection;
+    }
+
     private void sendRequest(String request) {
         try {
             Writer outputWriter = serialConnection.getOutputWriter();

@@ -1,8 +1,10 @@
 package com.xrc.arduino.twoWD;
 
+import com.xrc.arduino.serial.ConnectionFactory;
 import com.xrc.arduino.serial.SerialConnection;
 import com.xrc.arduino.twoWD.command.ExecutionTimeResolver;
 import com.xrc.arduino.twoWD.command.MotionStateResolver;
+import com.xrc.arduino.twoWD.impl.Arduino2WDController;
 import com.xrc.arduino.twoWD.task.ControllerInitTask;
 import com.xrc.arduino.twoWD.task.InvalidCommandException;
 import com.xrc.arduino.twoWD.task.MotionCommandTask;
@@ -11,7 +13,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 
-import java.io.IOException;
 import java.time.Duration;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -20,17 +21,16 @@ class ControllerTestBase {
     private final MotionStateResolver stateResolver = new MotionStateResolver();
     private final ExecutionTimeResolver timeResolver = new ExecutionTimeResolver();
 
-    private SerialConnection serialConnection;
-
-    private Controller controller;
+    private Arduino2WDController controller;
 
     @BeforeAll
     void initialize() throws Exception {
-        ControllerInitTask initTask = new ControllerInitTask();
-        initTask.execute();
+        SerialConnection connection =
+                ConnectionFactory.getInstance().getConnection();
+        controller = new Arduino2WDController(connection);
 
-        serialConnection = initTask.getConnection();
-        controller = initTask.getController();
+        ControllerInitTask initTask = new ControllerInitTask(controller);
+        initTask.execute();
     }
 
     void testCommand(MotionCommand command) throws Exception {
@@ -56,8 +56,8 @@ class ControllerTestBase {
     }
 
     @AfterAll
-    void dispose() throws IOException {
-        serialConnection.close();
+    void dispose() throws Exception {
+        controller.getConnection().close();
     }
 
     private class FirstStateListener implements ControllerListener {
