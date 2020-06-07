@@ -21,7 +21,7 @@ class RandomTests extends ControllerTestBase {
 //                    )
             );
 
-    @RepeatedTest(value = 100)
+    @RepeatedTest(value = 10)
     void testRandomCommand() throws Exception {
 
         MotionCommand command = randCommandSupplier.get();
