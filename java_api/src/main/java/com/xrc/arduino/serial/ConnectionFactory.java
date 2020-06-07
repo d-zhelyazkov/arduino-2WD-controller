@@ -31,7 +31,7 @@ public class ConnectionFactory {
         } else {
             // the next line is for Raspberry Pi
             // was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
-            //System.setProperty("gnu.io.rxtx.SerialPorts", UNIX_ACM_PORT);
+            System.setProperty("gnu.io.rxtx.SerialPorts", UNIX_ACM_PORT);
             return new SerialPortConnection(UNIX_USB_PORT, UNIX_ACM_PORT);
         }
     }
